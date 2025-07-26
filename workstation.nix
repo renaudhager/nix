@@ -1,7 +1,15 @@
 { pkgs ? import <nixpkgs> {} }:
 
 let
-  terraform_1_12_2 = pkgs.stdenv.mkDerivation {
+  #  Pinning nixpkgs to a specific Git commit
+  pinnedNixpkgs = import (fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/3ff0e34b1383648053bba8ed03f201d3466f90c9.tar.gz";
+    sha256 = "1mg2rlxz4q2sq94pg9bi0hpqibxsk0cw0v7g383qzr79vd3gdm89";
+  }) {};
+
+  pkgs = pinnedNixpkgs;
+
+  terraform = pkgs.stdenv.mkDerivation {
     pname = "terraform";
     version = "1.12.2";
 
@@ -20,7 +28,7 @@ let
     '';
   };
 
-  terragrunt_0_83_2 = pkgs.stdenv.mkDerivation {
+  terragrunt = pkgs.stdenv.mkDerivation {
     pname = "terragrunt";
     version = "0.83.2";
 
@@ -39,7 +47,7 @@ let
   };
 
   # Had to build it from source, 2.50.1 not available yet as nix pkg
-  git_2_50_1 = pkgs.stdenv.mkDerivation {
+  git = pkgs.stdenv.mkDerivation {
     pname = "git";
     version = "2.50.1";
 
@@ -63,21 +71,74 @@ let
     installPhase = "make install";
   };
 
+  kubectl = pkgs.stdenv.mkDerivation {
+    pname = "kubectl";
+    version = "v1.32.0";
+
+    src = pkgs.fetchurl {
+      url = "https://dl.k8s.io/release/v1.32.0/bin/darwin/arm64/kubectl";
+      sha256 = "5bfd5de53a054b4ef614c60748e28bf47441c7ed4db47ec3c19a3e2fa0eb5555";
+    };
+
+    phases = [ "installPhase" ];
+
+    installPhase = ''
+      mkdir -p $out/bin
+      cp $src $out/bin/kubectl
+      chmod +x $out/bin/kubectl
+    '';
+  };
+
+  helm = pkgs.stdenv.mkDerivation {
+    pname = "helm";
+    version = "v3.18.4";
+
+    src = pkgs.fetchurl {
+      url = "https://get.helm.sh/helm-v3.18.4-darwin-arm64.tar.gz";
+      sha256 = "041849741550b20710d7ad0956e805ebd960b483fe978864f8e7fdd03ca84ec8";
+    };
+
+    nativeBuildInputs = [ pkgs.gnutar pkgs.gzip ];
+
+    unpackPhase = ''
+      tar -xzf $src
+    '';
+
+    installPhase = ''
+      mkdir -p $out/bin
+      cp darwin-arm64/helm $out/bin/helm
+      chmod +x $out/bin/helm
+    '';
+  };
+
 in
 
 pkgs.mkShell {
-  name = "nix-work";
+  name = "nix.work";
 
   buildInputs = [
     pkgs.zsh
-    terraform_1_12_2
-    terragrunt_0_83_2
-    git_2_50_1
+    pkgs.go
+    pkgs.htop
+    pkgs.awscli2
+    pkgs.jq
+    terraform
+    terragrunt
+    git
+    kubectl
+    helm
   ];
 
   shellHook = ''
-    echo "Entering nix-work environment"
+    echo "Entering $name environment"
     export SHELL=$(which zsh)
-    exec zsh
+    export NIX_SHELL_NAME="$name"
+    export RPROMPT="%F{cyan}[$NIX_SHELL_NAME]%f"
+
+    if [[ -z "$IN_NIX_SHELL" || -n "$ZSH_VERSION" ]]; then
+      return
+    fi
+
+    zsh
   '';
 }
