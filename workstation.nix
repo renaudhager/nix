@@ -15,15 +15,28 @@ pkgs.mkShell {
   name = "n.work";
 
   buildInputs = [
-    pkgs.zsh
+    pkgs.awscli2
+    pkgs.curl
     pkgs.go
     pkgs.htop
-    pkgs.awscli2
     pkgs.jq
+    pkgs.less
+    pkgs.locale
+    pkgs.openssh
+    pkgs.sops
+    pkgs.terraform-docs
+    pkgs.tflint
+    pkgs.vim
+    pkgs.which
+    pkgs.zsh
     ~/nix/.artefacts/argocd
+    ~/nix/.artefacts/aws-ecr-credential-helper
+    ~/nix/.artefacts/crane
     ~/nix/.artefacts/git
     ~/nix/.artefacts/helm
+    ~/nix/.artefacts/istioctl
     ~/nix/.artefacts/kubectl
+    ~/nix/.artefacts/nats
     ~/nix/.artefacts/terraform
     ~/nix/.artefacts/terragrunt
   ];
@@ -33,6 +46,8 @@ pkgs.mkShell {
     export SHELL=$(which zsh)
     export NIX_SHELL_NAME="$name"
     export RPROMPT="%F{cyan}[$NIX_SHELL_NAME]%f"
+    export TERM_PROGRAM=ghostty
+    export TERMINFO=/Applications/Ghostty.app/Contents/Resources/terminfo
 
     if [[ -z "$IN_NIX_SHELL" || -n "$ZSH_VERSION" ]]; then
       return
