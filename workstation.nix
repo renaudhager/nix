@@ -17,12 +17,15 @@ pkgs.mkShell {
   buildInputs = [
     pkgs.awscli2
     pkgs.curl
+    pkgs.fzf
     pkgs.go
     pkgs.htop
     pkgs.jq
     pkgs.less
     pkgs.locale
+    pkgs.mysql84
     pkgs.openssh
+    pkgs.pre-commit
     pkgs.sops
     pkgs.terraform-docs
     pkgs.tflint
@@ -48,6 +51,7 @@ pkgs.mkShell {
     export RPROMPT="%F{cyan}[$NIX_SHELL_NAME]%f"
     export TERM_PROGRAM=ghostty
     export TERMINFO=/Applications/Ghostty.app/Contents/Resources/terminfo
+    export PATH="$PATH:/usr/local/bin/"
 
     if [[ -z "$IN_NIX_SHELL" || -n "$ZSH_VERSION" ]]; then
       return
