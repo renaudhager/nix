@@ -15,6 +15,7 @@ let
         installPhase = ''
             mkdir -p $out/bin
             cp $src $out/bin/docker-credential-ecr-login
+            chmod +x $out/bin/docker-credential-ecr-login
         '';
     };
 in aws-ecr-credential-helper

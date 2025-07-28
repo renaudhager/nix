@@ -1,5 +1,6 @@
 { pkgs ? import <nixpkgs> {} }:
 
+
 let
   #  Pinning nixpkgs to a specific Git commit
   pinnedNixpkgs = import (fetchTarball {
@@ -13,8 +14,11 @@ in
 
 pkgs.mkShell {
   name = "n.work";
+  
+  # nixpkgs.config.allowUnfree = true;
 
   buildInputs = [
+    pkgs._1password-cli
     pkgs.awscli2
     pkgs.curl
     pkgs.fzf
