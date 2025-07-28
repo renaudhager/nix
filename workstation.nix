@@ -14,8 +14,6 @@ in
 
 pkgs.mkShell {
   name = "n.work";
-  
-  # nixpkgs.config.allowUnfree = true;
 
   buildInputs = [
     pkgs._1password-cli
